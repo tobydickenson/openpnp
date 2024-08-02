@@ -116,6 +116,20 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
 	@Attribute(required = false)
 	private int maxFeedCount = 0;
 
+    // If the distance between the expected hole location and the previous vision is less
+    // than this threshold, then avoid updating the vision location and extrapolate the
+    // pick location based on the previous vision.
+    // Possible values are:
+    // * Zero:
+    //   Vision is updated every for every pick.
+    // * Above zero, but less than the hole pitch:
+    //   Each hole is only checked once for parts like 0402 which have part pitch smaller
+    //   than hole pitch.
+    // * greater than the hole pitch:
+    //   Check a subset of hole locations.
+    @Element(required = false)
+    private Length extrapolationDistance = new Length(1, LengthUnit.Millimeters);
+
     private Length holeDiameter = new Length(1.5, LengthUnit.Millimeters);
 
     private Length holePitch = new Length(4, LengthUnit.Millimeters);
@@ -276,6 +290,11 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         }
 
         Location expectedLocation = getExpectedLocation(visionFeedCount);
+        if (canPickWithoutUpdatingVisionOffsets(expectedLocation)) {
+            // We do not need to update the vision for this pick
+            return;
+        }
+
         // go to where we expect to find the next reference hole
         Camera camera = nozzle.getHead().getDefaultCamera();
         ensureFeederZ(camera);
@@ -320,6 +339,20 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
                     partPitch.multiply(visionFeedCount - 1));
         }
         return expectedLocation;
+    }
+
+    private Boolean canPickWithoutUpdatingVisionOffsets(Location holeLocation) {
+        if (visionLocation == null) {
+            // There is no stored vision offset
+            return false;
+        }
+
+        if (holeLocation.getLinearLengthTo(visionLocation).convertToUnits(LengthUnit.Millimeters).getValue() > extrapolationDistance.convertToUnits(LengthUnit.Millimeters).getValue()) {
+            // The expected location is too distant from the previous vision location
+            return false;
+        }
+
+        return true;
     }
 
     private Location findClosestHole(Camera camera) throws Exception {
