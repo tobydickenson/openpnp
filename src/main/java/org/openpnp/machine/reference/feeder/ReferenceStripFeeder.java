@@ -118,17 +118,10 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
 
     // If the distance between the expected hole location and the previous vision is less
     // than this threshold, then avoid updating the vision location and extrapolate the
-    // pick location based on the previous vision.
-    // Possible values are:
-    // * Zero:
-    //   Vision is updated every for every pick.
-    // * Above zero, but less than the hole pitch:
-    //   Each hole is only checked once for parts like 0402 which have part pitch smaller
-    //   than hole pitch.
-    // * greater than the hole pitch:
-    //   Check a subset of hole locations.
+    // pick location based on the previous vision measurements.
+    // Set this to k times larger than the hole pitch, to use vision on 1 hole in k.
     @Element(required = false)
-    private Length extrapolationDistance = new Length(1, LengthUnit.Millimeters);
+    private Length extrapolationDistance = new Length(0, LengthUnit.Millimeters);
 
     private Length holeDiameter = new Length(1.5, LengthUnit.Millimeters);
 
@@ -290,7 +283,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         }
 
         Location expectedLocation = getExpectedLocation(visionFeedCount);
-        if (canPickWithoutUpdatingVisionOffsets(expectedLocation)) {
+        if (!visionUpdateRequired(expectedLocation)) {
             // We do not need to update the vision for this pick
             return;
         }
@@ -341,18 +334,35 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         return expectedLocation;
     }
 
-    private Boolean canPickWithoutUpdatingVisionOffsets(Location holeLocation) {
+    private Boolean visionUpdateRequired(Location holeLocation) {
         if (visionLocation == null) {
             // There is no stored vision offset
+            return true;
+        }
+
+        double distanceHoleToVision = holeLocation.getLinearLengthTo(visionLocation).convertToUnits(LengthUnit.Millimeters).getValue();
+        double holePitchValue = holePitch.convertToUnits(LengthUnit.Millimeters).getValue();
+        if(distanceHoleToVision <  holePitchValue*0.5) {
+            // The new location is the same as the previous location (less than half the hole pitch).
+            // There is no need to re-check the same hole.
             return false;
         }
 
-        if (holeLocation.getLinearLengthTo(visionLocation).convertToUnits(LengthUnit.Millimeters).getValue() > extrapolationDistance.convertToUnits(LengthUnit.Millimeters).getValue()) {
-            // The expected location is too distant from the previous vision location
-            return false;
+        Location[] lineLocations = getIdealLineLocations();
+        double referenceSpan = lineLocations[0].getLinearLengthTo(lineLocations[1]).convertToUnits(LengthUnit.Millimeters).getValue();
+        if (referenceSpan < holePitchValue * 1.5 ) {
+            // This is one of the first 3 holes, so definitely check it.
+            return true;
         }
 
-        return true;
+        if (distanceHoleToVision > extrapolationDistance.convertToUnits(LengthUnit.Millimeters).getValue()) {
+            // The expected location is distant from the previous vision location,
+            // so vision update is needed
+            return true;
+        }
+
+        // No need to update vision in this case. We can extrapolate from the previous measurements
+        return false;
     }
 
     private Location findClosestHole(Camera camera) throws Exception {
