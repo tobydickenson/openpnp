@@ -274,27 +274,12 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         if (!visionEnabled) {
             return;
         }
+
+        Location expectedLocation = getExpectedLocation(visionFeedCount);
         // go to where we expect to find the next reference hole
         Camera camera = nozzle.getHead().getDefaultCamera();
         ensureFeederZ(camera);
-        Location expectedLocation = null;
-        Location[] lineLocations = getIdealLineLocations();
 
-        if (partPitch.convertToUnits(LengthUnit.Millimeters).getValue() < 4) {
-            // For tapes with a part pitch < 4 we need to check each hole
-            // twice since there are two parts per reference hole.
-            // Note the use of holePitch here and partPitch in the
-            // alternate case below.
-            expectedLocation = Utils2D.getPointAlongLine(lineLocations[0], lineLocations[1],
-                    holePitch.multiply((visionFeedCount - 1) / 2));
-        }
-        else {
-            // For tapes with a part pitch >= 4 there is always a reference
-            // hole 2mm from a part so we just multiply by the part pitch
-            // skipping over holes that are not reference holes.
-            expectedLocation = Utils2D.getPointAlongLine(lineLocations[0], lineLocations[1],
-                    partPitch.multiply(visionFeedCount - 1));
-        }
         MovableUtils.moveToLocationAtSafeZ(camera, expectedLocation);
         // and look for the hole
         Location actualLocation = findClosestHole(camera);
@@ -313,6 +298,28 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         }
 
         visionLocation = actualLocation;
+    }
+
+    private Location getExpectedLocation(Integer visionFeedCount) throws Exception {
+        Location expectedLocation = null;
+        Location[] lineLocations = getIdealLineLocations();
+
+        if (partPitch.convertToUnits(LengthUnit.Millimeters).getValue() < 4) {
+            // For tapes with a part pitch < 4 we need to check each hole
+            // twice since there are two parts per reference hole.
+            // Note the use of holePitch here and partPitch in the
+            // alternate case below.
+            expectedLocation = Utils2D.getPointAlongLine(lineLocations[0], lineLocations[1],
+                    holePitch.multiply((visionFeedCount - 1) / 2));
+        }
+        else {
+            // For tapes with a part pitch >= 4 there is always a reference
+            // hole 2mm from a part so we just multiply by the part pitch
+            // skipping over holes that are not reference holes.
+            expectedLocation = Utils2D.getPointAlongLine(lineLocations[0], lineLocations[1],
+                    partPitch.multiply(visionFeedCount - 1));
+        }
+        return expectedLocation;
     }
 
     private Location findClosestHole(Camera camera) throws Exception {
