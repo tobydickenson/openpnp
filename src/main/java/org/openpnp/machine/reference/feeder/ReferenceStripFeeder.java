@@ -518,7 +518,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         firePropertyChange("referenceHoleLocation", oldValue, referenceHoleLocation);
     }
 
-    private void resetVision() {
+    public void resetVision() {
         visionLocation = null;
         visionLocationReference = null;
     }
