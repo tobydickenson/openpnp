@@ -584,6 +584,14 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         this.partPitch = partPitch;
     }
 
+    public Length getExtrapolationDistance() {
+        return extrapolationDistance;
+    }
+
+    public void setExtrapolationDistance(Length extrapolationDistance) {
+        this.extrapolationDistance = extrapolationDistance;
+    }
+
     public Length getTapeWidth() {
         return tapeWidth;
     }
