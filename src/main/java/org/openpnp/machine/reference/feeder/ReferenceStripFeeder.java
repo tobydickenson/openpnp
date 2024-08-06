@@ -388,9 +388,9 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
             // For example, if extrapolationDistance is set to 12mm and holeSpan is 4mm then,
             // once it is up to speed, it will skip three holes (at position 4mm, 8mm, 12mm)
             // then use vision to calibrate the 4th (at position 16mm).
-            // The default extrapolationDistance is zero, which this branch to always return true,
-            // and always check every new hole. This default is safe, and the user can set a
-            // larger value for higher performance.
+            // The default extrapolationDistance is zero, which causes this branch to always
+            // return true, and always check every new hole. This default is safe, and the user
+            // can set a larger value for higher performance.
             return true;
         }
 
