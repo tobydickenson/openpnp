@@ -277,6 +277,8 @@ public class ReferenceStripFeederConfigurationWizard extends AbstractConfigurati
                 applyAction.actionPerformed(e);
             }
         });
+        btnResetFeedCount.setToolTipText(Translations.getString(
+                "ReferenceStripFeederConfigurationWizard.ResetFeedCountButton.toolTipText")); //$NON-NLS-1$
         panelTapeSettings.add(btnResetFeedCount, "12, 6");
 
         lblMaxFeedCount = new JLabel(Translations.getString(
@@ -345,6 +347,8 @@ public class ReferenceStripFeederConfigurationWizard extends AbstractConfigurati
 
         JButton btnClearVisionCache = new JButton(Translations.getString(
                 "ReferenceStripFeederConfigurationWizard.PanelVision.ClearVisionCacheButton.text")); //$NON-NLS-1$
+        btnClearVisionCache.setToolTipText(Translations.getString(
+                "ReferenceStripFeederConfigurationWizard.PanelVision.ClearVisionCacheButton.toolTipText")); //$NON-NLS-1$
         btnClearVisionCache.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 clearVisionCache();
@@ -357,9 +361,10 @@ public class ReferenceStripFeederConfigurationWizard extends AbstractConfigurati
         panelVision.add(lblExtrapolationDistance, "2, 6, right, default");
 
         textFieldExtrapolationDistance = new JTextField();
+        textFieldExtrapolationDistance.setToolTipText(Translations.getString(
+                "ReferenceStripFeederConfigurationWizard.PanelVision.ExtrapolationDistanceLabel.toolTipText")); //$NON-NLS-1$
         panelVision.add(textFieldExtrapolationDistance, "4, 6");
         textFieldExtrapolationDistance.setColumns(5);
-
 
         panelLocations = new JPanel();
         contentPanel.add(panelLocations);
