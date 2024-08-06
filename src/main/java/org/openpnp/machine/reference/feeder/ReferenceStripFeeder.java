@@ -20,6 +20,7 @@
 package org.openpnp.machine.reference.feeder;
 
 
+
 import java.util.List;
 
 import javax.swing.Action;
@@ -301,33 +302,13 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
 			throw new Exception("Tried to feed part: " + part.getId() + "  Feeder " + name + " empty.");
 		}
 
-        if (visionLocationReference == null) {
-            // We are performing the first pick
+        if (feedCount!=1 && visionLocationReference == null) {
+            // We are performing the first pick in the middle of the strip.
+            // Determine the exact location of the reference hole too.
+            updateVisionOffsets(nozzle,1);
+        }
 
-            if(feedCount==1)  {
-                // First pick at the start of the strip
-                if (partPitch.convertToUnits(LengthUnit.Millimeters).getValue() < 4) {
-                    // 0402 or smaller. Locate the first two holes
-                    updateVisionOffsets(nozzle,1);
-                    updateVisionOffsets(nozzle,3);
-                }
-                else {
-                    // Locate the holes for the first two components
-                    updateVisionOffsets(nozzle,1);
-                    updateVisionOffsets(nozzle,2);
-                }
-            }
-            else {
-                // First pick in the middle of the strip
-                // Locate the first hole, and the one for this component
-                updateVisionOffsets(nozzle,1);
-                updateVisionOffsets(nozzle,feedCount);
-            }
-        }
-        else {
-            // We already know where the first hole is, so now find the one for this component.
-            updateVisionOffsets(nozzle,feedCount);
-        }
+        updateVisionOffsets(nozzle,feedCount);
     }
 
     private void updateVisionOffsets(Nozzle nozzle,Integer visionFeedCount) throws Exception {
@@ -398,13 +379,6 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         if(distanceHoleToVision <  holePitchValue*0.5) {
             // The new location is the same as the previous location (less than half the hole pitch).
             // There is no need to re-check the same hole.
-            return false;
-        }
-
-        double distanceHoleToReference = holeLocation.getLinearLengthTo(visionLocationReference).convertToUnits(LengthUnit.Millimeters).getValue();
-        if(distanceHoleToReference <  holePitchValue*0.5) {
-            // The new location is the reference.
-            // There is no need to re-check.
             return false;
         }
 
