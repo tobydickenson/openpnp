@@ -405,7 +405,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         // to vision inaccuracy. This is a geometric progression of extrapolation distance,
         // which pretty quickly stretches out to the configured distance.
         //
-        // For the extrapolationDistance=15mm example above, the consequences of this are:
+        // For the extrapolationDistance=12mm example above, the consequences of this are:
         // * We definitely use vision on the first three holes.
         // * The 4th hole can be skipped.
         // * We then use vision on the 5th hole.
