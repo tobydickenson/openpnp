@@ -418,7 +418,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         double extrapolationDistanceMm = extrapolationDistance.convertToUnits(LengthUnit.Millimeters).getValue();
         //
         // A 1% margin, to cover the case where the user specifies an extrapolation distance of 4mm
-        // but vision indicates this next hole is 4.00000001 mm away.
+        // but vision indicates this next hole is expected to be 4.00000001 mm away.
         extrapolationDistanceMm *= 1.01;
         //
         return Double.min(extrapolationDistanceMm,extrapolationDistanceLimit);
