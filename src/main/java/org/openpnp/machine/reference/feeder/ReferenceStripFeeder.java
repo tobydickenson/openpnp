@@ -377,7 +377,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         double distanceHoleToVision = holeLocation.getLinearLengthTo(visionLocation).convertToUnits(LengthUnit.Millimeters).getValue();
         double holePitchValue = holePitch.convertToUnits(LengthUnit.Millimeters).getValue();
         if(distanceHoleToVision <  holePitchValue*0.5) {
-            // The new location is the same as the previous location (less than half the hole pitch).
+            // The new location is the same as the previous location (within half the hole pitch).
             // There is no need to re-check the same hole.
             return false;
         }
