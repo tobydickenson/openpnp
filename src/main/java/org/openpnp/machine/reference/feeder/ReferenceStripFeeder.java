@@ -385,7 +385,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         if (distanceHoleToVision >= getEffectiveExtrapolationDistance() ) {
             // The expected location is distant from the previous vision location,
             // so vision update is needed
-            // For example, if extrapolationDistance is set to 15mm and holeSpan is 4mm then,
+            // For example, if extrapolationDistance is set to 12mm and holeSpan is 4mm then,
             // once it is up to speed, it will skip three holes (at position 4mm, 8mm, 12mm)
             // then use vision to calibrate the 4th (at position 16mm).
             // The default extrapolationDistance is zero, which this branch to always return true,
@@ -416,6 +416,11 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         double referenceSpan = lineLocations[0].getLinearLengthTo(lineLocations[1]).convertToUnits(LengthUnit.Millimeters).getValue();
         double extrapolationDistanceLimit = referenceSpan*0.7;
         double extrapolationDistanceMm = extrapolationDistance.convertToUnits(LengthUnit.Millimeters).getValue();
+        //
+        // A 1% margin, to cover the case where the user specifies an extrapolation distance of 4mm
+        // but vision indicates this next hole is 4.00000001 mm away.
+        extrapolationDistanceMm *= 1.01;
+        //
         return Double.min(extrapolationDistanceMm,extrapolationDistanceLimit);
     }
 
