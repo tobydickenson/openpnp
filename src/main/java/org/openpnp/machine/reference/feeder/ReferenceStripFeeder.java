@@ -411,7 +411,7 @@ public class ReferenceStripFeeder extends ReferenceFeeder {
         // * We then use vision on the 5th hole.
         // * Skip 6th and 7th.
         // * Then use vision on the 8th hole.
-        // * Then we are up to full speed. Skip 3, and using vision for every 4th hole.
+        // * Then we are up to full speed. Skip 3, and use vision for every 4th hole.
         Location[] lineLocations = getIdealLineLocations();
         double referenceSpan = lineLocations[0].getLinearLengthTo(lineLocations[1]).convertToUnits(LengthUnit.Millimeters).getValue();
         double extrapolationDistanceLimit = referenceSpan*0.7;
