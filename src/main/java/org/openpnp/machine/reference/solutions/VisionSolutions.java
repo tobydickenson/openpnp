@@ -864,8 +864,25 @@ public class VisionSolutions implements Solutions.Subject {
                                 + "<p>Jog nozzle " + nozzle.getName()
                                 + " over the "+qualifier+" fiducial. Lower the nozzle tip down until it touches the fiducial.</p><br/>"
                                         + "<p><strong style=\"color:red;\">CAUTION:</strong> this is a very important Z coordinate, please capture it with care.</p><br/>"
-                                        + "<p>Then press Accept to capture the nozzle head offsets.</p>"
+                                        + "<p>Then press Accept to capture the nozzle head offsets.</p><br/>"
+                                + getExtendedWarnings()
                                 + "</html>";
+                    }
+
+                    private String getExtendedWarnings() {
+                        String r = "";
+                        if(getState() == State.Solved) {
+                            Location offset = primary ? head.getCalibrationPrimaryFiducialLocation() : head.getCalibrationSecondaryFiducialLocation();
+                            nozzle.getHeadOffsets();
+                            if (offset.getZ()>=0) {
+                                r += "<p><strong style=\"color:red;\">WARNING:</strong> The recorded fiducial Z position ("+offset.getLengthZ()+") is "
+                                  + (offset.getZ()==0 ? "zero" : "a positive number") + ", which is unconventional. "
+                                  + "OpenPnP typically uses Z coordinates that have Z=0 where the nozzle is retracted, with the "
+                                  + "PCB surface and calibration fiducials in the negative Z range. "
+                                  + "Please read the Wiki to understand the implications of not following this convention.</p><br/>";
+                            }
+                        }
+                        return r;
                     }
 
                     @Override
