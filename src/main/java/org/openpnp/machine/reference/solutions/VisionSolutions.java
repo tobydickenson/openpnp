@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
@@ -871,6 +872,19 @@ public class VisionSolutions implements Solutions.Subject {
 
                     private String getExtendedWarnings() {
                         String r = "";
+                        //
+                        List<String> nozzlesWithChanger = new ArrayList<>();
+                        for (Nozzle nozzle : head.getNozzles()) {
+                            if (nozzle instanceof ReferenceNozzle) {
+                                if(((ReferenceNozzle) nozzle).isChangerEnabled()) {
+                                    nozzlesWithChanger.add(nozzle.getName());
+                                }
+                            }
+                        }
+                        if(!nozzlesWithChanger.isEmpty()) {
+                            r += "<p>You have automatic tool changers enabled on nozzles "+nozzlesWithChanger+". It is prudent to disable them during calibration of the coordinate system.</p><br/>";
+                        }
+                        //
                         if(getState() == State.Solved) {
                             Location offset = primary ? head.getCalibrationPrimaryFiducialLocation() : head.getCalibrationSecondaryFiducialLocation();
                             nozzle.getHeadOffsets();
