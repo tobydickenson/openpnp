@@ -884,18 +884,6 @@ public class VisionSolutions implements Solutions.Subject {
                         if(!nozzlesWithChanger.isEmpty()) {
                             r += "<p>You have automatic tool changers enabled on nozzles "+nozzlesWithChanger+". It is prudent to disable them during calibration of the coordinate system.</p><br/>";
                         }
-                        //
-                        if(getState() == State.Solved) {
-                            Location offset = primary ? head.getCalibrationPrimaryFiducialLocation() : head.getCalibrationSecondaryFiducialLocation();
-                            nozzle.getHeadOffsets();
-                            if (offset.getZ()>=0) {
-                                r += "<p><strong style=\"color:red;\">WARNING:</strong> The recorded fiducial Z position ("+offset.getLengthZ()+") is "
-                                  + (offset.getZ()==0 ? "zero" : "a positive number") + ", which is unconventional. "
-                                  + "OpenPnP typically uses Z coordinates that have Z=0 where the nozzle is retracted, with the "
-                                  + "PCB surface and calibration fiducials in the negative Z range. "
-                                  + "Please read the Wiki to understand the implications of not following this convention.</p><br/>";
-                            }
-                        }
                         return r;
                     }
 
