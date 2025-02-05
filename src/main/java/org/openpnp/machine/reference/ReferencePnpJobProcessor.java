@@ -1193,6 +1193,11 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
         }
         
         private void scriptBeforeAssembly(PlannedPlacement plannedPlacement, Location placementLocation) throws JobProcessorException {
+            String eventName = "Job.Placement.BeforeAssembly";
+            if(!Configuration.get().getScripting().eventHasScripts(eventName)) {
+                return;
+            }
+
             final Nozzle nozzle = plannedPlacement.nozzle;
             final JobPlacement jobPlacement = plannedPlacement.jobPlacement;
             final Placement placement = jobPlacement.getPlacement();
@@ -1211,7 +1216,7 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
                 params.put("placementLocationBase", placementLocation);
                 params.put("placementLocation", placementLocationPart);
                 params.put("alignmentOffsets", plannedPlacement.alignmentOffsets);
-                Configuration.get().getScripting().on("Job.Placement.BeforeAssembly", params);
+                Configuration.get().getScripting().on(eventName, params);
             }
             catch (Exception e) {
                 throw new JobProcessorException(null, e);
