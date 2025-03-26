@@ -592,7 +592,7 @@ public abstract class AbstractMotionPlanner extends AbstractModelObject implemen
         }
         if (needsExtraBacklashMove) {
             // First move goes to the extra backlashCompensatedLocation.
-            addMotion(hm, speed, 
+            addMotionSplitLong(hm, speed,
                     backlashCompensatedCurrentLocation, 
                     backlashCompensatedNewLocation,
                     optionFlags);
@@ -605,12 +605,49 @@ public abstract class AbstractMotionPlanner extends AbstractModelObject implemen
                     optionFlags);
         }
         else {
-            addMotion(hm, speed, 
+            addMotionSplitLong(hm, speed,
                     backlashCompensatedCurrentLocation, 
                     newLocation, 
                     optionFlags);
         }
         return newLocation;
+    }
+
+    @Attribute(required=false)
+    private double longMovementLength = 120;
+    @Attribute(required=false)
+    private double endMovementLength = 5;
+
+    // This is a workaround for a Marlin motion-planner bug.
+    //
+    // We sometimes see extra-long deceleration profiles. The motion gets within a few millimeters
+    // of the endpoint, then takes several seconds to drift to the end. This only seems to happen when
+    // long movements are followed by other long movements, or very tiny movements. Or when long
+    // movements are at the end of the motion planner queue. It doesnt happen with short movements,
+    // or on long movements that are followed by short movements.
+    //
+    // This workaround operates by detecting long movements, and splitting them into two. The first
+    // which covers most of the distance, followed by another which finishes the last 5mm.
+    protected Motion addMotionSplitLong(HeadMountable hm, double speed, AxesLocation location0,
+            AxesLocation location1, int options) {
+        AxesLocation offset = location1.subtract(location0);
+        double length = 0.0;
+        for (Axis axis : offset.getAxes()) {
+            if(axis.getType()==Axis.Type.X || axis.getType()==Axis.Type.Y) {
+                Double v = offset.getCoordinate(axis);
+                length += v*v;
+            }
+        }
+        length = Math.sqrt(length);
+        if(length < longMovementLength) {
+            Logger.trace("short movement {}",length);
+            return addMotion(hm,speed,location0,location1,options);
+        } else {
+            Logger.trace("splitting long movement {}",length);
+            AxesLocation locationMid = location1.subtract(offset.multiply(endMovementLength/length));
+            addMotion(hm,speed,location0,locationMid,options);
+            return addMotion(hm,speed,locationMid,location1,options);
+        }
     }
 
     protected Motion addMotion(HeadMountable hm, double speed, AxesLocation location0,
