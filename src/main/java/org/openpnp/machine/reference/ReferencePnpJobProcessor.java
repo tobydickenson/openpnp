@@ -1346,6 +1346,12 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
                 Location placementLocation = Utils2D.calculateBoardPlacementLocation(jobPlacement.getBoardLocation(), jobPlacement.getPlacement().getLocation());
                 nozzle.prepareForPickAndPlaceArticulation(feeder.getPickLocation(), placementLocation);
 
+                Map<String, Object> globals = new HashMap<>();
+                globals.put("nozzle", nozzle);
+                globals.put("feeder", feeder);
+                globals.put("part", part);
+                Configuration.get().getScripting().on("Nozzle.ApproachingPick", globals);
+
                 // Move to pick location.
                 nozzle.moveToPickLocation(feeder);
 

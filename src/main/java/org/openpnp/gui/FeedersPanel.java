@@ -702,6 +702,12 @@ public class FeedersPanel extends JPanel implements WizardContainer {
         nozzle.prepareForPickAndPlaceArticulation(feeder.getPickLocation(), 
                 placementLocation);
 
+        Map<String, Object> globals = new HashMap<>();
+        globals.put("nozzle", nozzle);
+        globals.put("feeder", feeder);
+        globals.put("part", feeder.getPart());
+        Configuration.get().getScripting().on("Nozzle.ApproachingPick", globals);
+
         // Go to the pick location and pick.
         nozzle.moveToPickLocation(feeder);
         nozzle.pick(feeder.getPart());
