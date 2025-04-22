@@ -873,7 +873,7 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
 
                 // remove all placements now in tmp from input
                 input.removeAll(tmp);
-                
+
                 // optimize the path between place location of all placements in tmp
                 TravellingSalesman<JobPlacement> tsm = new TravellingSalesman<>(
                         tmp, 
@@ -2563,11 +2563,12 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
                 Location averagePickLocation  = calcCenterLocation(plannedPlacements, pickLocator);
                 Location averagePlaceLocation = calcCenterLocation(plannedPlacements, placeLocator);
                 
-                // find the placement with the shortest distance to averagePlickLocation and averagePlaceLocation
+                // find the placement with the shortest travel time to averagePickLocation and averagePlaceLocation.
+                // sqrt(distance) is an approximation for travel time, assuming an acceleration limit.
                 double bestDistance = Double.MAX_VALUE;
                 for (JobPlacement p : compatibleJobPlacements) {
-                    double distance = pickLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePickLocation) 
-                                    + placeLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePlaceLocation);
+                    double distance = Math.sqrt(pickLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePickLocation))
+                                    + Math.sqrt(placeLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePlaceLocation));
 
                     // if this placement is closes with respect to its pick and place 
                     if (bestDistance > distance) {
