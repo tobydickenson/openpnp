@@ -68,6 +68,7 @@ import org.openpnp.util.TravellingSalesman;
 import org.openpnp.util.UiUtils;
 import org.openpnp.util.Utils2D;
 import org.openpnp.util.VisionUtils;
+import org.openpnp.util.MotionUtils;
 import org.pmw.tinylog.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -2563,14 +2564,13 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
                 Location averagePickLocation  = calcCenterLocation(plannedPlacements, pickLocator);
                 Location averagePlaceLocation = calcCenterLocation(plannedPlacements, placeLocator);
                 
-                // find the placement with the shortest travel time to averagePickLocation and averagePlaceLocation.
-                // sqrt(distance) is an approximation for travel time, assuming an acceleration limit.
+                // find the placement with the shortest distance to averagePickLocation and averagePlaceLocation.
                 double bestDistance = Double.MAX_VALUE;
                 for (JobPlacement p : compatibleJobPlacements) {
-                    double distance = Math.sqrt(pickLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePickLocation))
-                                    + Math.sqrt(placeLocator.getLocation(p, nozzle).getLinearDistanceTo(averagePlaceLocation));
+                    double distance = MotionUtils.getMotionCost(pickLocator.getLocation(p, nozzle).subtract(averagePickLocation))
+                                    + MotionUtils.getMotionCost(placeLocator.getLocation(p, nozzle).subtract(averagePlaceLocation));
 
-                    // if this placement is closes with respect to its pick and place 
+                   // if this placement is closes with respect to its pick and place
                     if (bestDistance > distance) {
                         bestDistance = distance;
                         bestPlacement = p;
