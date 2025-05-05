@@ -592,7 +592,7 @@ public abstract class AbstractMotionPlanner extends AbstractModelObject implemen
         }
         if (needsExtraBacklashMove) {
             // First move goes to the extra backlashCompensatedLocation.
-            addMotionSplitLong(hm, speed,
+            addMotion(hm, speed,
                     backlashCompensatedCurrentLocation, 
                     backlashCompensatedNewLocation,
                     optionFlags);
@@ -605,7 +605,7 @@ public abstract class AbstractMotionPlanner extends AbstractModelObject implemen
                     optionFlags);
         }
         else {
-            addMotionSplitLong(hm, speed,
+            addMotion(hm, speed,
                     backlashCompensatedCurrentLocation, 
                     newLocation, 
                     optionFlags);
