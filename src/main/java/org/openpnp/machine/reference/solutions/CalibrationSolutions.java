@@ -907,6 +907,27 @@ public class CalibrationSolutions implements Solutions.Subject {
                 }
             }
         }
+        //
+        // Record some extra movement timing. This is not really backlash compensation; it is used by MotionUtils
+        Length previousEffectiveDistance0 = new Length(0, LengthUnit.Millimeters);
+        for(double distanceM = distance0*backlashDistanceFactor; distanceM < 1000.0; distanceM *= backlashDistanceFactor) {
+            Location displacedAxisLocation = displacedAxisLocation(movable, axis, location, -distanceM*mmAxis, false);
+            Length effectiveDistance0 = location.getLinearLengthTo(displacedAxisLocation);
+            if(effectiveDistance0.equals(previousEffectiveDistance0)) {
+                // This has clipped at the soft limit so exit this loop
+                break;
+            }
+            previousEffectiveDistance0 = effectiveDistance0;
+            MovableUtils.moveToLocationAtSafeZ(movable, displacedAxisLocation, minimumSpeed);
+            movable.waitForCompletion(CompletionType.WaitForStillstand);
+            Thread.sleep(machineSettleMs);
+            double t0 = NanosecondTime.getRuntimeSeconds();
+            movable.moveTo(location);
+            movable.waitForCompletion(CompletionType.WaitForStillstand);
+            double t1 = NanosecondTime.getRuntimeSeconds();
+            distanceGraph.getRow(TIME, TIME+0).recordDataPoint(effectiveDistance0.convertToUnits(axis.getUnits()).getValue(),  t1-t0);
+        }
+        //
         double sneakUpOffset = Math.max(maxBacklash, maxBacklashDistance);
         double[] backlashOffsetBySpeed = new double [backlashProbingSpeeds.length];
         int iSpeed = 0;
