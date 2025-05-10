@@ -16,7 +16,15 @@ public class Translations {
 
     public static String getString(String key) {
         try {
-            return RESOURCE_BUNDLE.getString(key);
+            String r = RESOURCE_BUNDLE.getString(key);
+            if (System.getProperty("textUppercase") != null) {
+                // Add the java command line -DtextUppercase=1 to enable this.
+                // All text processed by the translation feature is converted to uppercase.
+                // This can be used by developers to help spot any text in the user interface
+                // which is incorrectly bypassing this translation mechanism.
+                r = r.toUpperCase();
+            }
+            return r;
         } catch (MissingResourceException e) {
             return '!' + key + '!';
         }
