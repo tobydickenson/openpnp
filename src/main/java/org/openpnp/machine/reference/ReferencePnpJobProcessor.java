@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Collections;
 
 import javax.swing.SwingUtilities;
 
@@ -2423,6 +2424,8 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
         protected Strategy strategy = Strategy.Minimize;
         
         private boolean restart;
+
+        private int nozzlePhase = 0;
         
         @Override
         public Strategy getStrategy() {
@@ -2452,6 +2455,11 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
              * easier. As we plan a nozzle we'll remove it from the list until none are left.
              */
             List<Nozzle> nozzles = new ArrayList<>(head.getNozzles());
+
+            // Each cycle we process the nozzles in a different order
+            nozzlePhase += 1;
+            nozzlePhase %= nozzles.size();
+            Collections.rotate(nozzles,nozzlePhase);
             
             /**
              * Same as above, except for NozzleTips.
