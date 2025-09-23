@@ -385,6 +385,10 @@ public class ReferenceNozzle extends AbstractNozzle implements HeadMountable {
         Configuration.get().getScripting().on("Nozzle.AfterPick", globals);
     }
 
+    public void cancelPick() throws Exception {
+        actuateVacuumValve(false);
+    }
+
     @Override
     public void moveToPlacementLocation(Location placementLocation, Part part) throws Exception {
         // The default ReferenceNozzle implementation just moves to the placementLocation + partHeight at safe Z.

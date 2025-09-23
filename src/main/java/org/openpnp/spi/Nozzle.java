@@ -103,6 +103,12 @@ public interface Nozzle
     public void pick(Part part,Feeder feeder) throws Exception;
 
     /**
+      * Commands the nozzle to undo whatever was done during pick(), ready for a retry
+      * of the same pick(). Generally this just consists of turning the vacuum off.
+      */
+    public void cancelPick() throws Exception;
+
+    /**
      * Move the Nozzle to the given placementLocation. This will move at safe Z and position the Nozzle
      * so it is ready for {@link #place()}. This might or might not involve offsets and actions for 
      * contact-probing. 

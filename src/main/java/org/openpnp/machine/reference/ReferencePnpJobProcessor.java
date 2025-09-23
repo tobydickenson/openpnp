@@ -1431,8 +1431,12 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
         
         private void feederPickRetry(Nozzle nozzle, Feeder feeder, JobPlacement jobPlacement, Part part) throws JobProcessorException {
             Exception lastException = null;
+            boolean isRetry = true;
             for (int i = 0; i < 1 + feeder.getPickRetryCount(); i++) {
                 try {
+                    if(isRetry) {
+                        cancelPick(nozzle);
+                    }
                     pick(nozzle, feeder, jobPlacement, part);
                     postPick(feeder, nozzle);
                     checkPartOn(nozzle);
@@ -1440,6 +1444,7 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
                 }
                 catch (Exception e) {
                     lastException = e;
+                    isRetry = true;
                 }
             }
             throw new JobProcessorException(feeder, nozzle, lastException);
@@ -1469,6 +1474,15 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
             }
         }
         
+        private void cancelPick(Nozzle nozzle) throws JobProcessorException {
+            try {
+                nozzle.cancelPick();
+            }
+            catch (Exception e) {
+                throw new JobProcessorException(nozzle, e);
+            }
+        }
+
         private void postPick(Feeder feeder, Nozzle nozzle) throws JobProcessorException {
             try {
                 feeder.postPick(nozzle);
