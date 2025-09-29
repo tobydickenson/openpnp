@@ -1541,7 +1541,7 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
         @Override
         public Step stepImpl(PlannedPlacement plannedPlacement) throws JobProcessorException {
             if (plannedPlacement == null) {
-                return new OptimizeNozzlesForPlace(plannedPlacements);
+                return new DiscardSpurious(plannedPlacements);
             }
             
             final Nozzle nozzle = plannedPlacement.nozzle;
@@ -1607,6 +1607,31 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
             }
         }
     }
+
+    protected class DiscardSpurious implements Step {
+        protected List<PlannedPlacement> plannedPlacements;
+
+        protected DiscardSpurious(List<PlannedPlacement> plannedPlacements) {
+            this.plannedPlacements = plannedPlacements;
+        }
+
+        public Step step() throws JobProcessorException {
+            List <Nozzle> usefulNozzles = plannedPlacements
+                    .stream()
+                    .map(p -> { return p.nozzle; })
+                    .collect(Collectors.toList());
+            for (Nozzle nozzle : head.getNozzles()) {
+                if(!usefulNozzles.contains(nozzle)) {
+                    // We are about to move over the board to do placements, and this nozzle is carrying a
+                    // spurious part that will not be placed. Maybe it failed vision check. Discard it
+                    // before it becomes a possible risk to the board.
+                    discard(nozzle);
+                }
+            }
+            return new OptimizeNozzlesForPlace(plannedPlacements);
+        }
+    }
+
 
     /**
      * Optimize nozzles for best place performance
