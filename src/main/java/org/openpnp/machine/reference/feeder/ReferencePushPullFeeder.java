@@ -435,9 +435,11 @@ public class ReferencePushPullFeeder extends ReferenceFeeder {
                 }
                 if (includedPush3 && (isFirst || includedMulti3)) {
                     actuator.moveTo(feedMid3Location, feedSpeedPush3*baseSpeed);
+                    actuator.delay(20);
                 }
                 if (includedPushEnd && (isFirst || includedMultiEnd)) {
                     actuator.moveTo(feedEndLocation, feedSpeedPushEnd*baseSpeed);
+                    actuator.delay(20);
                 }
 
                 // Start the take up actuator
@@ -448,6 +450,7 @@ public class ReferencePushPullFeeder extends ReferenceFeeder {
                 // Now move back to the start location to move the tape.
                 if (includedPull3 && (isLast || includedMulti3)) {
                     actuator.moveTo(feedMid3Location, feedSpeedPull3 * baseSpeed);
+                    actuator.delay(20);
                 }
                 if (includedPull2 && (isLast || includedMulti2)) {
                     actuator.moveTo(feedMid2Location, feedSpeedPull2 * baseSpeed);
