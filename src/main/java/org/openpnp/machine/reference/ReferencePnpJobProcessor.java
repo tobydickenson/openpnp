@@ -1845,9 +1845,6 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
 
                 // Safe Z the machine
                 head.moveToSafeZ();
-
-                // Wait until those actions are complete
-                machine.getMotionPlanner().waitForCompletion(null,CompletionType.WaitForStillstand);
             }
             catch (Exception e) {
                 throw new JobProcessorException(head, e);
@@ -1860,7 +1857,15 @@ public class ReferencePnpJobProcessor extends AbstractPnpJobProcessor {
             catch (Exception e) {
                 throw new JobProcessorException(head, e);
             }
-            
+
+
+            try {// Wait until those actions are complete
+                machine.getMotionPlanner().waitForCompletion(null,CompletionType.WaitForStillstand);
+            }
+            catch (Exception e) {
+                throw new JobProcessorException(head, e);
+            }
+
             return null;
         }
     }
