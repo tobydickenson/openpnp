@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
 
+import org.openpnp.spi.Axis;
 import org.openpnp.machine.reference.axis.ReferenceControllerAxis;
 import org.openpnp.model.MotionProfile.ProfileOption;
 import org.openpnp.spi.ControllerAxis;
@@ -1363,18 +1364,56 @@ solve(eq, a)
             double distance = segment.getRS274NGCMetric(driver, 
                     (axis) -> segment.getCoordinate(axis));
             double factor = distance/segment.getEuclideanMetric()/Math.abs(unitVector[leadAxis]);
-            MoveToCommand command = new MoveToCommand(
-                    location0, location1,
-                    getMovingAxesTargetLocation(driver),
-                    Math.max(driver.getMinimumRate(1).convertToUnits(AxesLocation.getUnits()).getValue(), 
-                            Math.abs(factor*v)), 
-                    Math.max(driver.getMinimumRate(2).convertToUnits(AxesLocation.getUnits()).getValue(),
-                            Math.abs(factor*a)),
-                    null, // No jerk
-                    0.0, time, Math.abs(factor*v0), Math.abs(factor*v7));
-    
+
+
+
+            Double sfr = Math.max(driver.getMinimumRate(1).convertToUnits(AxesLocation.getUnits()).getValue(),
+                            Math.abs(factor*v));
+            Double sa = Math.max(driver.getMinimumRate(2).convertToUnits(AxesLocation.getUnits()).getValue(),
+                            Math.abs(factor*a));
+
+            AxesLocation offset = location1.subtract(location0);
+            double length = 0.0;
+            for (Axis axis : offset.getAxes()) {
+                if(axis.getType()==Axis.Type.X || axis.getType()==Axis.Type.Y) {
+                    Double xx = offset.getCoordinate(axis);
+                    length += xx*xx;
+                }
+            }
+            length = Math.sqrt(length);
+            double longMovementLength = 60;
             List<MoveToCommand> list = new ArrayList<>(1);
-            list.add(command);
+            if(length < longMovementLength) {
+                Logger.trace("Motion short movement {}",length);
+                MoveToCommand command = new MoveToCommand(
+                        location0, location1,
+                        getMovingAxesTargetLocation(driver),
+                        sfr,
+                        sa,
+                        null, // No jerk
+                        0.0, time, Math.abs(factor*v0), Math.abs(factor*v7));
+                list.add(command);
+            } else {
+                Logger.trace("Motion splitting long movement {}",length);
+                double endMovementLength = 5;
+                AxesLocation locationMid = location1.subtract(offset.multiply(endMovementLength/length));
+                MoveToCommand command = new MoveToCommand(
+                        location0, locationMid,
+                        getMovingAxesTargetLocation(driver),
+                        sfr,
+                        sa,
+                        null, // No jerk
+                        0.0, time, Math.abs(factor*v0), Math.abs(factor*v7));
+                list.add(command);
+                command = new MoveToCommand(
+                        locationMid, location1,
+                        getMovingAxesTargetLocation(driver),
+                        sfr,
+                        sa,
+                        null, // No jerk
+                        null, null, null, null);
+                list.add(command);
+            }
             return list;
         }
         else {
