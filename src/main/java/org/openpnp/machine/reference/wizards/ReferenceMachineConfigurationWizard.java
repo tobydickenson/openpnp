@@ -58,6 +58,7 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
     private JCheckBox autoToolSelect;
     private JCheckBox safeZPark;
     private JTextField unsafeZRoamingDistance;
+    private JTextField placementOffset;
     private JCheckBox parkAfterHomed;
     private JCheckBox poolScriptingEngines;
     private JCheckBox autoLoadMostRecentJob;
@@ -78,6 +79,8 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
                 FormSpecs.RELATED_GAP_COLSPEC,
                 ColumnSpec.decode("default:grow"),},
             new RowSpec[] {
+                FormSpecs.RELATED_GAP_ROWSPEC,
+                FormSpecs.DEFAULT_ROWSPEC,
                 FormSpecs.RELATED_GAP_ROWSPEC,
                 FormSpecs.DEFAULT_ROWSPEC,
                 FormSpecs.RELATED_GAP_ROWSPEC,
@@ -158,6 +161,16 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
 
         autoLoadMostRecentJob = new JCheckBox("");
         panelGeneral.add(autoLoadMostRecentJob, "4, 16");
+
+        JLabel lblPlacementOffsetLabel = new JLabel(Translations.getString(
+                "ReferenceMachineConfigurationWizard.PanelGeneral.PlacementOffset.text")); //$NON-NLS-1$
+        lblPlacementOffsetLabel.setToolTipText(Translations.getString(
+                "ReferenceMachineConfigurationWizard.PanelGeneral.PlacementOffset.toolTipText")); //$NON-NLS-1$
+        panelGeneral.add(lblPlacementOffsetLabel, "2, 18, right, default");
+
+        placementOffset = new JTextField();
+        panelGeneral.add(placementOffset, "4, 18, left, default");
+        placementOffset.setColumns(10);
 
         JPanel panelLocations = new JPanel();
         panelLocations.setBorder(new TitledBorder(null, Translations.getString(
@@ -345,8 +358,10 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
         addWrappedBinding(machine, "autoToolSelect", autoToolSelect, "selected");
         addWrappedBinding(machine, "safeZPark", safeZPark, "selected");
         addWrappedBinding(machine, "unsafeZRoamingDistance", unsafeZRoamingDistance, "text", lengthConverter);
+        addWrappedBinding(machine, "placementOffset", placementOffset, "text", lengthConverter);
 
         ComponentDecorators.decorateWithAutoSelectAndLengthConversion(unsafeZRoamingDistance);
+        ComponentDecorators.decorateWithAutoSelectAndLengthConversion(placementOffset);
 
         motionPlannerClassName = machine.getMotionPlanner().getClass().getSimpleName();
         addWrappedBinding(this, "motionPlannerClassName", motionPlannerClass, "selectedItem");
