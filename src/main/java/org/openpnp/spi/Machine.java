@@ -398,9 +398,9 @@ public interface Machine extends WizardConfigurable, PropertySheetHolder, Closea
 
     /**
      *
-     * During placement, this is the distance *below* board Z where parts are placed.
+     * During placement, this is the distance above board Z where parts are placed.
      * Commonly this is zero, and parts are placed on the board surface.
-     * A positive value can be used to thoroughly squash the parts down into the paste,
+     * A negative value can be used to thoroughly squash the parts down into the paste,
      * or to compensate for a nozzle that contracts when vacuum is applied
      *
      * @return Maximum allowable roaming distance at unsafe Z.
